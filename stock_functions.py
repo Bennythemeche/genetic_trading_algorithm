@@ -6,6 +6,7 @@ Created on Fri Dec 23 17:29:50 2016
 """
 
 import numpy as np
+import random
 
 def backtest_func(actions,data,starting_capital):
     '''Backtests a list of actions produced by a trading algorithm.
@@ -65,8 +66,8 @@ def mwa_mwslope_func(data,window):
 def multivar_lin_strategy(classifiers,params):
     
     #matrix multiply classifier matrix by param vector in column form
-    V=
-    last_action=='sell'
+    V=np.dot(classifiers,params)
+    last_action='sell'
     for n in range(len(V)):
         if V[n]>1 and last_action=='sell':
             actions.append('buy')
@@ -89,6 +90,7 @@ def evaluate_individual_fitness(algorithm,data_segments,params,classifier_segmen
     '''Runs a backtest on algorithm (a function that takes classifiers and params) for each segment of data in data_segments.
     Returns fitness score given by a1*(average frac_returns per segment)+a2*(stand dev in frac returns)+a3*avg(frac_returns_per_day)'''
     
+    starting_capital=10**6    
     frac_returns_list=[]
     frac_returns_per_day_list=[]
     for n in range(len(data_segments)):
@@ -106,7 +108,7 @@ def evaluate_individual_fitness(algorithm,data_segments,params,classifier_segmen
     return fitness_score
         
         
-
+def produce_offspring(params_list_ordered,num_reproduce,num_offspring,)
 
 #data=[1,2,3,.5,-100,2]
 #starting_capital=1000
