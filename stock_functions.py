@@ -106,9 +106,43 @@ def evaluate_individual_fitness(algorithm,data_segments,params,classifier_segmen
     fitness_score=a1*np.mean(frac_returns_list)+a2*np.std(frac_returns_list)+a3*np.mean(frac_returns_per_day)
     
     return fitness_score
+    
+def rank_individuals():
+    
+    fitness_list=[]
         
         
-def produce_offspring(params_list_ordered,num_reproduce,num_offspring,)
+def produce_offspring(params_list_ordered,num_reproduce,num_offspring,mutation_rate):
+    '''Takes a list of parameters (list of lists) representing individuals, 
+        number of individuals to allow to reproduce (num_reproduce), number of offspring to create (num_offspring),
+        and mutation_rate (stand dev of noise added=norm(offspring)*mutation_rate )
+        Returns offspring_list, list of lists of params representing offspring''' 
+        
+    parents=params_list_ordered[0:num_reproduce]   #select num_reproduce best individuals to be parents
+    
+    offspring_list=[]
+    
+    for n in range(num_offspring):
+        #select two random parents
+        parent1=random.choice(parents)
+        parent2=random.choice(parents)
+        #select two random weighs
+        weight1=random.random()
+        weight2=1-weight1
+        
+        #create offspring by doing weighted avg of parents params
+        offspring=[weight1*parent1[n]+weight2*parent2[n] for n in range(len(parent1))]
+        
+        #create noise vector with stand dev=norm(offspring)*mutation_rate
+        noise=np.random.normal(0,np.linalg.norm(offspring)*mutation_rate,len(offspring))
+        #add noise
+        offspring+=noise
+        #append newely created offspring to list of offspring
+        offspring_list.append(offspring)
+        
+    return offspring_list
+        
+    
 
 #data=[1,2,3,.5,-100,2]
 #starting_capital=1000
