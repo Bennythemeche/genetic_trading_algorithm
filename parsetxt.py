@@ -49,7 +49,7 @@ def parsetxt(str,filename,pathstr=None):
 	#print(datalist)
 	return datalist
 
-def chunks(dlist,classifiers,length):
+def chunks(dlist,classifiers,length,num_chunks):
 	""" Takes some data in the form of a list of lists(dlist), and some classifiers
 	(classifiers) corresponding to the data. "Length" specifies how many randomly selected
 	data points to be chosen from the list. It returns "length" randomly selected data 
@@ -59,7 +59,7 @@ def chunks(dlist,classifiers,length):
 	"""
 	randindexes=[]
 	rappend=randindexes.append
-	for num in range(length):
+	for num in range(num_chunks):
 		while True:
 			randindex=randint(0,length)
 			if randindex not in randindexes:
@@ -77,4 +77,4 @@ def chunks(dlist,classifiers,length):
 # testcase for chunks
 dlist=[random.random() for j in range(10)]
 classifiers=[np.random.randint(1,10,(2,2)) for j in range(10) for k in range(10)]
-chunks(dlist,classifiers,5)
+#chunks(dlist,classifiers,5)
