@@ -104,10 +104,13 @@ def multivar_lin_strategy(classifiers,params):
         
     return actions
     
-def evaluate_individual_fitness(algorithm,data_segments,params,classifier_segments,a1,a2,a3):
+def evaluate_individual_fitness(algorithm,data_segments,params,classifier_segments,weights):
     '''Runs a backtest on algorithm (a function that takes classifiers and params) for each segment of data in data_segments.
     Returns fitness score given by a1*(average frac_returns per segment)+a2*(stand dev in frac returns)+a3*avg(frac_returns_per_day)'''
     
+    a1=weights[0]
+    a2=weights[1]
+    a3=weights[2]
     starting_capital=10**6    
     frac_returns_list=[]
     frac_returns_per_day_list=[]
@@ -127,7 +130,7 @@ def evaluate_individual_fitness(algorithm,data_segments,params,classifier_segmen
     return fitness_score
 
     
-def rank_individuals(indv_params,fit_alg,dseg,cseg,a1,a2,a3):
+def rank_individuals(params_list,trading_strategy,fitness_function,weights,data_segments,classifier_segments):
     
     """ Ranks the individuals based on their fitness according to the fitness
     algorithm, and returns a list of the fitnesses in order of largest fitness
@@ -137,45 +140,45 @@ def rank_individuals(indv_params,fit_alg,dseg,cseg,a1,a2,a3):
 
     fitness_list=[]
 
-    new_param_list=[]
+    param_list_ordered=[]
 
     fappend=fitness_list.append
-    pappend=new_param_list.append
+    pappend=param_list_ordered.append
     finsert=fitness_list.insert
-    pinsert=new_param_list.insert
+    pinsert=param_list_ordered.insert
     
     # iterate through all indviduals
-    for i in range(len(indv_params)):
-        par=indv_params[i]
-
-        fitcheck=lambda fit_alg,par: evaluate_individual_fitness(fit_alg,dseg,
-                                                                 par,cseg,a1,
-                                                                 a2,a3)
-        pfit=fitcheck(fit_alg,par)
+    for i in range(len(params_list)):
+        #Select params for ith individual
+        indv=params_list[i]
+        #evaluate individual's fitness
+        indv_fitness=evaluate_individual_fitness(trading_strategy,data_segments,indv,classifier_segments,weights)
 
         # insert pfit into appropriate index of fitness list
         if len(fitness_list)==0:
 
-            fappend(copy(pfit))
-            pappend(copy(par))
+            fappend(copy(indv_fitness))
+            pappend(copy(indv))
 
-        elif pfit>max(fitness_list):
-            fappend(pfit)
-            pappend(par)
+        elif indv_fitness>max(fitness_list):
+            finsert(0,copy(indv_fitness))
+            pinsert(0,copy(indv))            
+            
 
-        elif pfit<min(fitness_list):
-            finsert(0,copy(pfit))
-            pinsert(0,copy(par))
+        elif indv_fitness<min(fitness_list):
+            fappend(indv_fitness)
+            pappend(indv)
+            
             
         else:
             for f in fitness_list:
-                if pfit<f:
+                if indv_fitness>f:
 
-                    finsert(fitness_list.index(f),copy(pfit))
-                    pinsert(fitness_list.index(f),copy(par))
+                    finsert(fitness_list.index(f),copy(indv_fitness))
+                    pinsert(fitness_list.index(f),copy(indv))
 
                     break
-    return new_param_list,fitness_list
+    return param_list_ordered,fitness_list
         
 def produce_offspring(params_list_ordered,num_reproduce,num_offspring,mutation_rate):
     '''Takes a list of parameters (list of lists) representing individuals, 
@@ -207,7 +210,7 @@ def produce_offspring(params_list_ordered,num_reproduce,num_offspring,mutation_r
         
     return offspring_list
         
-        
+    
 #def produce_offspring(params_list_ordered,num_reproduce,num_offspring,mutation_rate):
 #    '''Takes a list of parameters (list of lists) representing individuals, 
 #        number of individuals to allow to reproduce (num_reproduce), number of offspring to create (num_offspring),
@@ -252,18 +255,19 @@ data_segments=[[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,
 
 classifier_segments=[np.array([[1,2,3],[1,-2,-3],[1,2,3],[1,2,3],[-1,2,-3],[1,2,3],[-1,-2,-3],[1,2,3],[1,2,-3]]),np.array([[1,2,3],[1,-2,-3],[1,2,3],[1,2,3],[-1,2,-3],[1,2,3],[-1,-2,-3],[1,2,3],[1,2,-3]]),np.array([[1,2,3],[1,-2,-3],[1,2,3],[1,2,3],[-1,2,-3],[1,2,3],[-1,-2,-3],[1,2,3],[1,2,-3]]),np.array([[1,2,3],[1,-2,-3],[1,2,3],[1,2,3],[-1,2,-3],[1,2,3],[-1,-2,-3],[1,2,3],[1,2,-3]])]
 
-
+params=[1,2,3]
 
 #actions=multivar_lin_strategy(classifiers,params)
 
 
-#fitness=evaluate_individual_fitness(multivar_lin_strategy,data_segments,params,classifier_segments,1,0,0)
+fitness=evaluate_individual_fitness(multivar_lin_strategy,data_segments,params,classifier_segments,[1,0,0])
 
 #Create 2 individuals, try to get it to order them
 idv1=[1,2,3]  #this one has fitness of 3.37
 idv2=[1,2,-3] #this one has fitness of 1.06
 
 #put individuals together as a list
-param_list=[idv1,idv2]
+params_list=[idv1,idv2]
+weights=[1,0,0]
 
-(param_list_ordered,fitness_list)=rank_individuals(param_list,evaluate_individual_fitness,data_segments,classifier_segments,1,0,0)
+(param_list_ordered,fitness_list)=rank_individuals(params_list,multivar_lin_strategy,evaluate_individual_fitness,weights,data_segments,classifier_segments)
