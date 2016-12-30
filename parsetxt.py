@@ -2,6 +2,7 @@ import random
 from random import randint
 from copy import copy
 import numpy as np
+
 def parsetxt(str,filename,pathstr=None):
 	""" Takes a textfile containing financial data, and a string indicating 
 	what kind of data we shall extract from the file. Returns a list of 
@@ -14,6 +15,7 @@ def parsetxt(str,filename,pathstr=None):
 	else:
 		fpath=filename
 	file=open(fpath,'r')
+      
 
 	datalist=[]
 
@@ -43,7 +45,7 @@ def parsetxt(str,filename,pathstr=None):
 			# this part collects the data in the column by reading 
 			# through all other lines of the file
 			else:
-				new_val=line.split()[index]
+				new_val=float(line.split()[index])
 				dappend(new_val)
 
 	#print(datalist)
@@ -67,14 +69,14 @@ def chunks(dlist,classifiers,length,num_chunks):
 				break
 
 	randdata=[copy(dlist[index:index+length+1]) for index in randindexes]
-	randclassifiers=[classifiers[index] for index in randindexes]
+	randclassifiers=[classifiers[index:index+length+1,:] for index in randindexes]
 
 	return (randdata,randclassifiers)
 
 # testcase for parsetxt
-# parsetxt('Close','table.txt')
+#data=parsetxt('Close','ford_5Y.txt')
 
 # testcase for chunks
-dlist=[random.random() for j in range(10)]
-classifiers=[np.random.randint(1,10,(2,2)) for j in range(10) for k in range(10)]
+#dlist=[random.random() for j in range(10)]
+#classifiers=[np.random.randint(1,10,(2,2)) for j in range(10) for k in range(10)]
 #chunks(dlist,classifiers,5)
